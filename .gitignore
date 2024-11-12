@@ -3,6 +3,7 @@
 *.iml
 *.tokens
 *.interp
+*.html
 hwBaseListener.java
 hwLexer.java
 hwListener.java
