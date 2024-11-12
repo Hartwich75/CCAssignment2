@@ -4,6 +4,7 @@
 *.tokens
 *.interp
 *.html
+/out
 hwBaseListener.java
 hwLexer.java
 hwListener.java
