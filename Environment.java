@@ -62,6 +62,6 @@ class Environment {
 	    table += entry.getKey() + "\t-> " + entry.getValue() + "\n";
 	}
 	return table;
-    }   
+    }
 }
 

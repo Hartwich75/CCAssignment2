@@ -41,13 +41,28 @@ class Conjunction extends Expr{
 class Disjunction extends Expr{
     // Example: Signal1 + Signal2 
     Expr e1,e2;
-    Disjunction(Expr e1,Expr e2){this.e1=e1; this.e2=e2;}
+    Disjunction(Expr e1,Expr e2){
+        this.e1=e1;
+        this.e2=e2;
+    }
+
+    @Override
+    public boolean eval(Environment env) {
+        return e1.eval(env) || e2.eval(env);
+    }
 }
 
 class Negation extends Expr{
     // Example: /Signal
     Expr e;
-    Negation(Expr e){this.e=e;}
+    Negation(Expr e){
+        this.e=e;
+    }
+
+    @Override
+    public boolean eval(Environment env) {
+        return !e.eval(env);
+    }
 }
 
 class UseDef extends Expr{
@@ -58,11 +73,48 @@ class UseDef extends Expr{
     UseDef(String f, List<Expr> args){
 	this.f=f; this.args=args;
     }
+
+    @Override
+    public boolean eval(Environment env) {
+        // Look up the function definition in the Environment
+        Def functionDef = env.getFunctionDefinition(f);
+        if (functionDef == null) {
+            error("Function " + f + " is not defined.");
+            return false; // Unreachable, as error exits, but needed for compilation
+        }
+
+        // Create a new environment scope with function arguments mapped
+        Environment functionEnv = env.createScope();
+        List<String> paramNames = functionDef.args;
+
+        if (paramNames.size() != args.size()) {
+            error("Argument count mismatch for function " + f);
+        }
+
+        for (int i = 0; i < paramNames.size(); i++) {
+            functionEnv.setSignalValue(paramNames.get(i), args.get(i).eval(env));
+        }
+
+        // Evaluate the function's body expression with this new environment
+        return functionDef.e.eval(functionEnv);
+    }
 }
 
 class Signal extends Expr{
     String varname; // a signal is just identified by a name 
-    Signal(String varname){this.varname=varname;}
+    Signal(String varname){
+        this.varname = varname;
+    }
+
+    @Override
+    public boolean eval(Environment env) {
+        Boolean value = env.getSignalValue(varname);
+        if (value == null) {
+            error("Signal " + varname + " is not defined.");
+            return false; // Unreachable, as error exits, but needed for compilation
+        }
+        return value;
+    }
 }
 
 class Def extends AST{
