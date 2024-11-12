@@ -74,6 +74,11 @@ class UseDef extends Expr{
 	this.f=f; this.args=args;
     }
 
+    /**
+     *
+     * @param env environment to evaluate the function in
+     * @return true if the function was evaluated successfully, false otherwise
+     */
     @Override
     public boolean eval(Environment env) {
         // Look up the function definition in the Environment
