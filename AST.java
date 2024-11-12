@@ -17,12 +17,25 @@ public abstract class AST{
    (Negation). Moreover, an expression can be using any of the
    functions defined in the definitions. */
 
-abstract class Expr extends AST{}
+abstract class Expr extends AST{
+
+    public abstract boolean eval (Environment env);
+
+}
 
 class Conjunction extends Expr{
     // Example: Signal1 * Signal2 
-    Expr e1,e2;
-    Conjunction(Expr e1,Expr e2){this.e1=e1; this.e2=e2;}
+    Expr e1, e2;
+
+    Conjunction(Expr e1, Expr e2) {
+        this.e1 = e1;
+        this.e2 = e2;
+    }
+
+    @Override
+    public boolean eval(Environment env) {
+        return e1.eval(env) && e2.eval(env);
+    }
 }
 
 class Disjunction extends Expr{
