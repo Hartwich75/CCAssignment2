@@ -71,32 +71,14 @@ class UseDef extends Expr{
     String f;  // the name of the function, e.g. "xor" 
     List<Expr> args;  // arguments, e.g. [Signal1, /Signal2]
     UseDef(String f, List<Expr> args){
-	this.f=f; this.args=args;
+	this.f = f;
+    this.args = args;
     }
 
     @Override
     public boolean eval(Environment env) {
-        // Look up the function definition in the Environment
-        Def functionDef = env.getFunctionDefinition(f);
-        if (functionDef == null) {
-            error("Function " + f + " is not defined.");
-            return false; // Unreachable, as error exits, but needed for compilation
-        }
-
-        // Create a new environment scope with function arguments mapped
-        Environment functionEnv = env.createScope();
-        List<String> paramNames = functionDef.args;
-
-        if (paramNames.size() != args.size()) {
-            error("Argument count mismatch for function " + f);
-        }
-
-        for (int i = 0; i < paramNames.size(); i++) {
-            functionEnv.setSignalValue(paramNames.get(i), args.get(i).eval(env));
-        }
-
-        // Evaluate the function's body expression with this new environment
-        return functionDef.e.eval(functionEnv);
+        error("User-defined functions are not supported in this task.");
+        return false; // This line is unreachable but necessary for compilation.
     }
 }
 
@@ -135,7 +117,15 @@ class Update extends AST{
     // Example Signal1 = /Signal2 
     String name;  // Signal being updated, e.g. "Signal1"
     Expr e;  // The value it receives, e.g., "/Signal2"
-    Update(String name, Expr e){this.e=e; this.name=name;}
+    Update(String name, Expr e){
+        this.e=e; this.name=name;
+    }
+
+    public void eval(Environment env){
+        Boolean result = e.eval(env);
+        env.setSignalValue(name, result);
+    }
+
 }
 
 /* A Trace is a signal and an array of Booleans, for instance each
@@ -153,6 +143,15 @@ class Trace extends AST{
 	this.signal=signal;
 	this.values=values;
     }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(signal + " = ");
+        for (Boolean value : values) {
+            sb.append(value ? "1" : "0");
+        }
+        return sb.toString();
+    }
+
 }
 
 /* The main data structure of this simulator: the entire circuit with
@@ -198,4 +197,64 @@ class Circuit extends AST{
 	this.updates=updates;
 	this.siminputs=siminputs;
     }
+
+    public void latchesInit(Environment env){
+        for (String latch : latches) {
+            env.setSignalValue(latch + "'", false);
+        }
+    }
+
+    public void latchesUpdate(Environment env) {
+        for (String latch : latches) {
+            Boolean value = env.getSignalValue(latch);
+            env.setSignalValue(latch + "'", value); // Set latch output to current input value
+        }
+    }
+
+    public void initialize(Environment env) {
+
+        for (Trace inputTrace : siminputs) {
+            Boolean[] values = inputTrace.values;
+            if (values.length == 0) {
+                error("Input signal " + inputTrace.signal + " has no values in siminputs.");
+            }
+            env.setSignalValue(inputTrace.signal, values[0]);
+        }
+
+        latchesInit(env);
+
+        for (Update update : updates) {
+            update.eval(env);
+        }
+
+        System.out.println(env);
+    }
+
+    public void nextCycle(Environment env, int i) {
+
+        for (Trace inputTrace : siminputs) {
+            Boolean[] values = inputTrace.values;
+            if (i >= values.length) {
+                error("Input signal " + inputTrace.signal + " is undefined at cycle " + i);
+            }
+            env.setSignalValue(inputTrace.signal, values[i]);
+        }
+
+        latchesUpdate(env);
+
+        for (Update update : updates) {
+            update.eval(env);
+        }
+
+        System.out.println(env);
+    }
+
+    public void runSimulator(Environment env) {
+        initialize(env);
+
+        for (int i = 1; i < simlength; i++) {
+            nextCycle(env, i);
+        }
+    }
+
 }
