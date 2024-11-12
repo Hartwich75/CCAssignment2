@@ -23,8 +23,11 @@ abstract class Expr extends AST{
 
 }
 
+/**
+ * Conjunction of two expressions
+ * Example: Signal1 * Signal2
+ */
 class Conjunction extends Expr{
-    // Example: Signal1 * Signal2 
     Expr e1, e2;
 
     Conjunction(Expr e1, Expr e2) {
@@ -38,9 +41,13 @@ class Conjunction extends Expr{
     }
 }
 
+/**
+ * Disjunction of two expressions
+ * Example: Signal1 + Signal2
+ */
 class Disjunction extends Expr{
-    // Example: Signal1 + Signal2 
     Expr e1,e2;
+
     Disjunction(Expr e1,Expr e2){
         this.e1=e1;
         this.e2=e2;
@@ -52,6 +59,11 @@ class Disjunction extends Expr{
     }
 }
 
+/**
+ * Negation (NOT) of an expression
+ * Example: /Signal
+ * Eval returns true when the expression is false and vice versa
+ */
 class Negation extends Expr{
     // Example: /Signal
     Expr e;
@@ -65,6 +77,9 @@ class Negation extends Expr{
     }
 }
 
+/**
+ * Use of a defined function
+ */
 class UseDef extends Expr{
     // Using any of the functions defined by "def"
     // e.g. xor(Signal1,/Signal2) 

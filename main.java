@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class main {
     public static void main(String[] args) throws IOException{
-
+	//System.out.println("HELLO FROM THE MAIN CLASS");
 	// we expect exactly one argument: the name of the input file
 	if (args.length!=1) {
 	    System.err.println("\n");
