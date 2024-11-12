@@ -1,0 +1,11 @@
+*.class
+/.idea
+*.iml
+*.tokens
+*.interp
+hwBaseListener.java
+hwLexer.java
+hwListener.java
+hwParser.java
+hwBaseVisitor.java
+hwVisitor.java

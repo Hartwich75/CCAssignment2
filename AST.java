@@ -75,6 +75,11 @@ class UseDef extends Expr{
     this.args = args;
     }
 
+    /**
+     *
+     * @param env environment to evaluate the function in
+     * @return true if the function was evaluated successfully, false otherwise
+     */
     @Override
     public boolean eval(Environment env) {
         error("User-defined functions are not supported in this task.");
