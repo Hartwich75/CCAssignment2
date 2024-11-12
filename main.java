@@ -20,7 +20,7 @@ public class main {
 	    System.err.println("Please give as input argument a filename\n");
 	    System.exit(-1);
 	}
-	String filename=args[0];
+	String filename = args[0];
 
 	// open the input file
 	CharStream input = CharStreams.fromFileName(filename);
@@ -47,14 +47,23 @@ public class main {
 	   ANTLR grammar, it generates an object of class Circuit (see
 	   AST.java). */
 	
-	Circuit p = (Circuit) new AstMaker().visit(parseTree);
+	Circuit circuit = (Circuit) new AstMaker().visit(parseTree);
 
 	/* For the second assignment you need to extend the classes of
 	    AST.java with some methods that correspond to running a
 	    simulation of the given hardware for given simulation
 	    inputs. The method for starting the simulation should be
 	    called here for the Circuit p. */
-    }
+
+		Environment env = new Environment();
+		circuit.simlength = 3; // Example: Set the simulation length if not already defined in the input
+		System.out.println("Running simulator...");
+		circuit.runSimulator(env); // Run the simulation
+		System.out.println("Simulation completed. Check output for correctness.");
+
+
+	}
+
 }
 
 // The visitor for producing html/jax -- solution for assignment 1, task 3:
