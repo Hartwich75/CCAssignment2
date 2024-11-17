@@ -104,7 +104,7 @@ class UseDef extends Expr{
             return false; // This line is unreachable due to error(), but required for compilation
         }
 
-        // Create a new environment for the function
+        // Create a new duplicated environment for the function
         Environment functionEnv = env.createScope();
 
         // Bind function arguments to actual parameter values
