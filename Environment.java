@@ -25,31 +25,41 @@ class Environment {
     // Constructor that compute the map of function definitions, given
     // a the set of definitions as available in Circuit. You can then
     // use getDef() below.    
-    public Environment(List<Def> listdefs) {
-	defs=new HashMap<String,Def>();
-	for(Def d:listdefs)
-	    defs.put(d.f,d);
+    public Environment(List<Def> listDefs) {
+        this(); // Call default constructor to initialize maps
+        for (Def def : listDefs) {
+            functionDefinitions.put(def.f, def);
+        }
     }
+
 
     // This constructor can be used during eval to create a new
     // environment with the same definitions contained in an existing
     // one:
     public Environment(Environment env) {
+        this(); // Call default constructor to initialize maps
+        this.signalValues.putAll(env.signalValues);
+        this.functionDefinitions.putAll(env.functionDefinitions);
         this.defs=env.defs;
     }
 
     // Lookup a definition, e.g., "xor"
-    public Def getDef(String name){
-	Def d=defs.get(name);
-	if (d==null){ System.err.println("Function not defined: "+name); System.exit(-1); }  
-	return d;
+    public Def getDef(String name) {
+        Def def = functionDefinitions.get(name);
+        if (def == null) {
+            System.err.println("Function not defined: " + name);
+            System.exit(-1);
+        }
+        return def;
     }
 
     // return the set of all definitions; this is helpful when
     // creating a new environment during eval: just get the defs from
     // the current environment and using it as an argument to the
     // constructor for the new environemnt
-    public HashMap<String,Def> getDefs(){return defs;};
+    public HashMap<String,Def> getDefs(){
+        return defs;
+    };
     public void setVariable(String name, Boolean value) {
 	variableValues.put(name, value);
     }
@@ -64,18 +74,24 @@ class Environment {
 	Boolean v = variableValues.get(name); 
 	return (v != null);	
     }
-    
+
+    @Override
     public String toString() {
-	String table = "";
-	for (Entry<String,Boolean> entry : variableValues.entrySet()) {
-	    table += entry.getKey() + "\t-> " + entry.getValue() + "\n";
-	}
-	return table;
+        StringBuilder sb = new StringBuilder("Environment State:\n");
+        for (Map.Entry<String, Boolean> entry : signalValues.entrySet()) {
+            sb.append(entry.getKey()).append(" = ").append(entry.getValue() ? "1" : "0").append("\n");
+        }
+        return sb.toString();
     }
 
     // Method to get the Boolean value of a signal by its name
     public Boolean getSignalValue(String varname) {
-        return signalValues.get(varname);
+        Boolean value = signalValues.get(varname);
+        if (value == null) {
+            System.err.println("Signal not defined: " + varname);
+            System.exit(-1);
+        }
+        return value;
     }
 
     // Method to set a Boolean value for a signal in the environment
@@ -93,10 +109,7 @@ class Environment {
         return functionDefinitions.get(functionName);
     }
     public Environment createScope() {
-        Environment newEnv = new Environment();
-        newEnv.signalValues.putAll(this.signalValues);
-        newEnv.functionDefinitions.putAll(this.functionDefinitions);
-        return newEnv;
+        return new Environment(this); // Use the copy constructor
     }
 
 }

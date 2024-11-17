@@ -97,8 +97,29 @@ class UseDef extends Expr{
      */
     @Override
     public boolean eval(Environment env) {
-        error("User-defined functions are not supported in this task.");
-        return false; // This line is unreachable but necessary for compilation.
+        // Retrieve the function definition
+        Def functionDef = env.getDef(f);
+        if (functionDef == null) {
+            error("Function " + f + " is not defined.");
+            return false; // This line is unreachable due to error(), but required for compilation
+        }
+
+        // Create a new environment for the function
+        Environment functionEnv = env.createScope();
+
+        // Bind function arguments to actual parameter values
+        List<String> paramNames = functionDef.args;
+        if (paramNames.size() != args.size()) {
+            error("Argument count mismatch for function " + f);
+        }
+
+        for (int i = 0; i < paramNames.size(); i++) {
+            Boolean argValue = args.get(i).eval(env); // Evaluate the actual parameter
+            functionEnv.setSignalValue(paramNames.get(i), argValue); // Bind argument in the new environment
+        }
+
+        // Evaluate the function body in the new environment
+        return functionDef.e.eval(functionEnv);
     }
 }
 
@@ -232,7 +253,12 @@ class Circuit extends AST{
     }
 
     public void initialize(Environment env) {
+        // Add function definitions to the environment
+        for (Def def : definitions) {
+            env.addFunctionDefinition(def.f, def);
+        }
 
+        // Initialize input signals from siminputs
         for (Trace inputTrace : siminputs) {
             Boolean[] values = inputTrace.values;
             if (values.length == 0) {
@@ -241,8 +267,10 @@ class Circuit extends AST{
             env.setSignalValue(inputTrace.signal, values[0]);
         }
 
+        // Initialize latch outputs
         latchesInit(env);
 
+        // Evaluate updates for the first cycle
         for (Update update : updates) {
             update.eval(env);
         }
