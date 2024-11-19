@@ -237,6 +237,7 @@ class Circuit extends AST{
 	this.definitions=definitions;
 	this.updates=updates;
 	this.siminputs=siminputs;
+    this.simlength = siminputs.getFirst().values.length;
     }
 
     public void latchesInit(Environment env){

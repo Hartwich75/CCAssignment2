@@ -40,7 +40,7 @@ public class main {
 
 	// The JaxMaker is a visitor that produces html/jax output as a string
 	String result = new JaxMaker().visit(parseTree);
-	System.out.println("\n\n\n"+result);
+	// System.out.println("\n\n\n"+result);
 
 	/* The AstMaker generates the abstract syntax to be used for
 	   the second assignment, where for the start symbol of the
@@ -56,7 +56,7 @@ public class main {
 	    called here for the Circuit p. */
 
 		Environment env = new Environment();
-		circuit.simlength = 3; // Example: Set the simulation length if not already defined in the input
+		// circuit.simlength = 3; // Example: Set the simulation length if not already defined in the input
 		System.out.println("Running simulator...");
 		circuit.runSimulator(env); // Run the simulation
 		System.out.println("Simulation completed. Check output for correctness.");
