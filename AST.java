@@ -253,9 +253,20 @@ class Circuit extends AST{
     }
 
     public void initialize(Environment env) {
-        // Add function definitions to the environment
+        // Add definitions to the environment
         for (Def def : definitions) {
             env.addFunctionDefinition(def.f, def);
+        }
+
+        // Initialize simoutputs for inputs and outputs
+        simoutputs = new ArrayList<>();
+        for (String input : inputs) {
+            Trace trace = new Trace(input, new Boolean[simlength]);
+            simoutputs.add(trace);
+        }
+        for (String output : outputs) {
+            Trace trace = new Trace(output, new Boolean[simlength]);
+            simoutputs.add(trace);
         }
 
         // Initialize input signals from siminputs
@@ -267,34 +278,58 @@ class Circuit extends AST{
             env.setSignalValue(inputTrace.signal, values[0]);
         }
 
-        // Initialize latch outputs
+        // Initialize latches
         latchesInit(env);
 
-        // Evaluate updates for the first cycle
+        // Perform the first cycle of updates
         for (Update update : updates) {
             update.eval(env);
         }
 
-        System.out.println(env);
+        // Store the first cycle values in simoutputs
+        storeTraces(env, 0);
     }
 
-    public void nextCycle(Environment env, int i) {
-
+    public void nextCycle(Environment env, int cycle) {
+        // Update input signals for the current cycle
         for (Trace inputTrace : siminputs) {
             Boolean[] values = inputTrace.values;
-            if (i >= values.length) {
-                error("Input signal " + inputTrace.signal + " is undefined at cycle " + i);
+            if (cycle >= values.length) {
+                error("Input signal " + inputTrace.signal + " is undefined at cycle " + cycle);
             }
-            env.setSignalValue(inputTrace.signal, values[i]);
+            env.setSignalValue(inputTrace.signal, values[cycle]);
         }
 
+        // Update latches
         latchesUpdate(env);
 
+        // Perform updates for all signals
         for (Update update : updates) {
             update.eval(env);
         }
 
-        System.out.println(env);
+        // Store signal values in simoutputs for this cycle
+        storeTraces(env, cycle);
+    }
+    private void storeTraces(Environment env, int cycle) {
+        for (Trace trace : simoutputs) {
+            Boolean value = env.getSignalValue(trace.signal);
+            if (value == null) {
+                error("Signal " + trace.signal + " is not defined in the environment.");
+            }
+            trace.values[cycle] = value;
+        }
+    }
+
+    private void printTraces() {
+        for (Trace trace : simoutputs) {
+            StringBuilder sb = new StringBuilder();
+            for (Boolean value : trace.values) {
+                sb.append(value ? "1" : "0");
+            }
+            sb.append(" ").append(trace.signal);
+            System.out.println(sb.toString());
+        }
     }
 
     public void runSimulator(Environment env) {
@@ -303,6 +338,9 @@ class Circuit extends AST{
         for (int i = 1; i < simlength; i++) {
             nextCycle(env, i);
         }
+
+        // Print the final formatted traces
+        printTraces();
     }
 
 }
