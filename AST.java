@@ -165,6 +165,7 @@ class Update extends AST{
     public void eval(Environment env){
         Boolean result = e.eval(env);
         env.setSignalValue(name, result);
+        System.out.printf("%s = %d\n", name, result ? 1 : 0);
     }
 
 }

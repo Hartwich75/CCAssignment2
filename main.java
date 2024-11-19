@@ -39,7 +39,7 @@ public class main {
 	ParseTree parseTree = parser.start();
 
 	// The JaxMaker is a visitor that produces html/jax output as a string
-	String result = new JaxMaker().visit(parseTree);
+	//String result = new JaxMaker().visit(parseTree);
 	// System.out.println("\n\n\n"+result);
 
 	/* The AstMaker generates the abstract syntax to be used for
