@@ -165,7 +165,7 @@ class Update extends AST{
     public void eval(Environment env){
         Boolean result = e.eval(env);
         env.setSignalValue(name, result);
-        System.out.printf("%s = %d\n", name, result ? 1 : 0);
+        //System.out.printf("%s = %d\n", name, result ? 1 : 0);
     }
 
 }
@@ -339,6 +339,8 @@ class Circuit extends AST{
 
         for (int i = 1; i < simlength; i++) {
             nextCycle(env, i);
+            System.out.printf("Clock Cycle: %d\n", i);
+            System.out.println(env.toString());
         }
 
         // Print the final formatted traces
